@@ -49,8 +49,8 @@ namespace SmartHint_WebAPI.Controllers
                                 client.CNPJ = reader.IsDBNull("CNPJ") ? null : reader.GetInt32("CNPJ");
                                 client.inscricaoEstadual = reader.GetString("inscricaoEstadual");
                                 client.bloqueado = reader.GetBoolean("bloqueado");
-                                client.genero = Convert.ToChar(reader.GetString("genero"));
-                                client.dataNascimento = reader.GetDateTime("dataNascimento");
+                                client.genero = reader.IsDBNull("genero") ? null : Convert.ToChar(reader.GetString("genero"));
+                                client.dataNascimento = reader.IsDBNull("dataNascimento") ? null : reader.GetDateTime("dataNascimento");
                                 client.dataCadastro = reader.GetDateTime("dataCadastro");
                                 client.senha = reader.GetString("senha");
                                 return Ok(client);
@@ -279,8 +279,26 @@ namespace SmartHint_WebAPI.Controllers
 
                     cl.inscricaoEstadual = Convert.ToString(dt.Rows[i]["inscricaoEstadual"]);
                     cl.bloqueado = Convert.ToBoolean(dt.Rows[i]["bloqueado"]);
-                    cl.genero = Convert.ToChar(dt.Rows[i]["genero"]);
-                    cl.dataNascimento = Convert.ToDateTime(dt.Rows[i]["dataNascimento"]);
+
+                    if (dt.Rows[i]["genero"] is null)
+                    {
+                        cl.genero = Convert.ToChar(dt.Rows[i]["genero"]);
+                    }
+                    else
+                    {
+                        cl.genero = null;
+                    }
+
+                    if (dt.Rows[i]["dataNascimento"] is null)
+                    {
+                        cl.dataNascimento = Convert.ToDateTime(dt.Rows[i]["dataNascimento"]);
+                    }
+                    else
+                    {
+                        cl.dataNascimento = null;
+                    }
+                    
+                    
                     cl.dataCadastro = Convert.ToDateTime(dt.Rows[i]["dataCadastro"]);
                     cl.senha = Convert.ToString(dt.Rows[i]["senha"]);
                     clientList.Add(cl);
@@ -317,7 +335,7 @@ namespace SmartHint_WebAPI.Controllers
                 isInsert = false;
                 query = $@"Update Clientes 
                         set 
-                            nome= @nome, 
+                            nome = @nome, 
                             email = @email, 
                             telefone = @telefone, 
                             tipo = @tipo, 
@@ -327,7 +345,7 @@ namespace SmartHint_WebAPI.Controllers
                             bloqueado = @bloqueado, 
                             genero = @genero, 
                             dataNascimento = @dataNascimento, 
-                            senha = @senha
+                            senha = @senha       
                         where id=@id";
             }
 
@@ -345,19 +363,19 @@ namespace SmartHint_WebAPI.Controllers
                         command.Parameters.AddWithValue("@email", client.email);
                         command.Parameters.AddWithValue("@telefone", client.telefone);
                         command.Parameters.AddWithValue("@tipo", client.tipo);
-                        command.Parameters.AddWithValue("@CPF", client.CPF);
-                        command.Parameters.AddWithValue("@CNPJ", client.CNPJ);
-                        command.Parameters.AddWithValue("@inscricaoEstdual", client.inscricaoEstadual);
-                        command.Parameters.AddWithValue("@bloqueado", client.bloqueado);
-                        command.Parameters.AddWithValue("@genero", client.genero);
-                        command.Parameters.AddWithValue("@dataNascimento", client.dataNascimento);
+                        command.Parameters.AddWithValue("@CPF", client.CPF == null ? DBNull.Value : client.CPF);
+                        command.Parameters.AddWithValue("@CNPJ", client.CNPJ == null ? DBNull.Value : client.CNPJ);
+                        command.Parameters.AddWithValue("@inscricaoEstadual", client.inscricaoEstadual);
+                        command.Parameters.AddWithValue("@bloqueado", client.bloqueado == null ? DBNull.Value : client.bloqueado);
+                        command.Parameters.AddWithValue("@genero", client.genero == null ? DBNull.Value : client.genero);
+                        command.Parameters.AddWithValue("@dataNascimento", client.dataNascimento == null ? DBNull.Value : client.dataNascimento);
                         command.Parameters.AddWithValue("@senha", client.senha);
                         if (isInsert)
                         {
                             command.Parameters.AddWithValue("@dataCadastro", DateTime.Now);
                         }
 
-                        command.ExecuteNonQuery();
+                            command.ExecuteNonQuery();
 
                         return Ok();
                     }
