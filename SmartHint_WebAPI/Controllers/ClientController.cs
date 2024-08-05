@@ -25,19 +25,21 @@ namespace SmartHint_WebAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            Models.Response response = new Models.Response();
             Client client = new Client();
 
             try
             {
                 using (var connection = new SqlConnection(_configuration.GetConnectionString("SQLConnection")))
                 {
-                        connection.Open();
+                    connection.Open();
                     string query = $"Select * from Clientes where ID=@id";
-                    using (var command = new SqlCommand(query, connection)) { 
-                    command.Parameters.AddWithValue("id", id);
-                        using (var reader = command.ExecuteReader()) {
-                            if (reader.Read()) {
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("id", id);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
                                 client.ID = reader.GetInt32("id");
                                 client.nome = reader.GetString("nome");
                                 client.email = reader.GetString("email");
@@ -61,10 +63,9 @@ namespace SmartHint_WebAPI.Controllers
                     }
                 }
             }
-            catch (Exception ex) {
-                response.StatusCode = 404;
-                response.ErrorMessage = "No data found";
-                return BadRequest(response);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
 
         }
@@ -73,7 +74,6 @@ namespace SmartHint_WebAPI.Controllers
         [Route("verifyMail")]
         public IActionResult verifyMail(string email)
         {
-            Models.Response response = new Models.Response();
             try
             {
                 using (var connection = new SqlConnection(_configuration.GetConnectionString("SQLConnection")))
@@ -99,89 +99,94 @@ namespace SmartHint_WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                response.StatusCode = 404;
-                response.ErrorMessage = "No data found";
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("verifyCPF")]
-        public IActionResult verifyCPF(int CPF)
+        public IActionResult verifyCPF(Int64? CPF = null)
         {
-            Models.Response response = new Models.Response();
             try
             {
-                using (var connection = new SqlConnection(_configuration.GetConnectionString("SQLConnection")))
+                if (CPF is not null)
                 {
-                    connection.Open();
-                    string query = $"Select CPF from Clientes where CPF=@CPF";
-                    using (var command = new SqlCommand(query, connection))
+                    using (var connection = new SqlConnection(_configuration.GetConnectionString("SQLConnection")))
                     {
-                        command.Parameters.AddWithValue("CPF", CPF);
-                        using (var reader = command.ExecuteReader())
+                        connection.Open();
+                        string query = $"Select CPF from Clientes where CPF=@CPF";
+                        using (var command = new SqlCommand(query, connection))
                         {
-                            if (reader.Read())
+                            command.Parameters.AddWithValue("CPF", CPF);
+                            using (var reader = command.ExecuteReader())
                             {
-                                return BadRequest();
-                            }
-                            else
-                            {
-                                return Ok();
+                                if (reader.Read())
+                                {
+                                    return BadRequest();
+                                }
+                                else
+                                {
+                                    return Ok();
+                                }
                             }
                         }
                     }
                 }
+                else
+                {
+                    return Ok();
+                }
             }
             catch (Exception ex)
             {
-                response.StatusCode = 404;
-                response.ErrorMessage = "No data found";
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("verifyCNPJ")]
-        public IActionResult verifyCNPJ(int CNPJ)
+        public IActionResult verifyCNPJ(Int64? CNPJ = null)
         {
-            Models.Response response = new Models.Response();
             try
             {
-                using (var connection = new SqlConnection(_configuration.GetConnectionString("SQLConnection")))
+                if (CNPJ is not null)
                 {
-                    connection.Open();
-                    string query = $"Select CNPJ from Clientes where CNPJ=@CNPJ";
-                    using (var command = new SqlCommand(query, connection))
+                    using (var connection = new SqlConnection(_configuration.GetConnectionString("SQLConnection")))
                     {
-                        command.Parameters.AddWithValue("CNPJ", CNPJ);
-                        using (var reader = command.ExecuteReader())
+                        connection.Open();
+                        string query = $"Select CNPJ from Clientes where CNPJ=@CNPJ";
+                        using (var command = new SqlCommand(query, connection))
                         {
-                            if (reader.Read())
+                            command.Parameters.AddWithValue("CNPJ", CNPJ);
+                            using (var reader = command.ExecuteReader())
                             {
-                                return BadRequest();
-                            }
-                            else
-                            {
-                                return Ok();
+                                if (reader.Read())
+                                {
+                                    return BadRequest();
+                                }
+                                else
+                                {
+                                    return Ok();
+                                }
                             }
                         }
                     }
                 }
+                else
+                {
+                    return Ok();
+                }
             }
             catch (Exception ex)
             {
-                response.StatusCode = 404;
-                response.ErrorMessage = "No data found";
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("verifyInscricao")]
         public IActionResult verifyInscricao(string inscricaoEstadual)
         {
-            Models.Response response = new Models.Response();
             try
             {
                 using (var connection = new SqlConnection(_configuration.GetConnectionString("SQLConnection")))
@@ -207,9 +212,7 @@ namespace SmartHint_WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                response.StatusCode = 404;
-                response.ErrorMessage = "No data found";
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -242,7 +245,6 @@ namespace SmartHint_WebAPI.Controllers
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 List<Client> clientList = new List<Client>();
-                Models.Response response = new Models.Response();
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -287,9 +289,7 @@ namespace SmartHint_WebAPI.Controllers
                     return Ok(clientList);
                 else
                 {
-                    response.StatusCode = 404;
-                    response.ErrorMessage = "No data found";
-                    return BadRequest(response);
+                    return BadRequest("No data found");
                 }
             }
             catch (Exception ex)
@@ -304,7 +304,6 @@ namespace SmartHint_WebAPI.Controllers
         {
             bool isInsert = false;
             string query = string.Empty;
-            Models.Response response = new Models.Response();
 
             if (client.ID.Equals(-1))
             {
